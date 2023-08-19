@@ -1,0 +1,29 @@
+{% extends 'common.html' %}
+
+{% block title %}
+
+TODO UPDATE
+
+{% endblock title %}
+
+
+{% block body %}
+
+<div class="container my-3">
+    <h4>UPDATE YOUR TODO</h4>
+    <form action="/update/{{context.sn}}" method="POST">
+        <div class="mb-3">
+            <label for="tittle" class="form-label">Todo Tittle</label>
+            <input type="text" class="form-control" id="tittle" value="{{context.tittle}}" name="tittle" required>
+        </div>
+        <div class="mb-3">
+            <label for="desc" class="form-label">Todo Description</label>
+            <input type="text" class="form-control" id="desc" value="{{context.desc}}" name="desc" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="/"><button type="button" class="btn btn-primary">Cancel</button></a>
+    </form>
+</div>
+
+
+{% endblock body %}

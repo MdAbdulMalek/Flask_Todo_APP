@@ -1,0 +1,84 @@
+{% extends 'common.html' %}
+
+{% block title %}
+
+TODO FULL VIEW
+
+{% endblock title %}
+
+
+{% block body %}
+<div class="container">
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th style="font-size: 20px;"><b>Name</b></th>
+                <th style="font-size: 20px;"><b>Values</b></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="active_tr">
+                <td>Title</td>
+                <td>{{context.tittle}}</td>
+            </tr>
+            <tr class="active_tr">
+                <td>Description</td>
+                <td>{{context.desc}}</td>
+            </tr>
+            <tr class="active_tr">
+                <td>Created Or Updated Date</td>
+                <td>{{context.date_created.strftime('%A, %d %B %Y %I:%M %p')}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="text-center">
+        <a href="/"><button type="button" class="btn btn-success btn-sm text-center" style="color: #eef3f1;"><b>Return
+                    Home</b></button></a>
+        <a href="/update/{{context.sn}}"><button type="button" class="btn btn-success btn-sm text-center"
+                style="color: #eef3f1;"><b>Update List</b></button></a>
+    </div>
+</div>
+
+
+<style>
+    .styled-table {
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        min-width: 1000px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .styled-table thead tr {
+        background-color: #009879;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .styled-table th,
+    .styled-table td {
+        padding: 12px 15px;
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:last-of-type {
+        border-bottom: 2px solid #009879;
+    }
+
+    .styled-table tbody tr.active_tr {
+        font-weight: bold;
+        color: #009879;
+    }
+</style>
+
+{% endblock body %}
