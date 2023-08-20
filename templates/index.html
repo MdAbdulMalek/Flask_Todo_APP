@@ -7,6 +7,7 @@ TODO HOME
 {% endblock title %}
 
 {% block body %}
+
 <div class="container my-3">
     <h4>ADD A TODO</h4>
     <form action="/" method="POST">
@@ -22,11 +23,55 @@ TODO HOME
         <button type="reset" class="btn btn-secondary">Reset</button>
     </form>
 </div>
+<br>
+<div class="container">
+    <form action="/search" method="POST" class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search By Title" name="search" required>
+        <button class="btn btn-success sm my-2" type="submit">Search</button>
+    </form>
+</div>
 
 <div class="container">
-    <h4>Your Todos</h4>
+    
+
+    {% if posts|length > 0 %}
+    <h4>Your Todos Displayed Based on Search Results.</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">SN</th>
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Created Date</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in posts%}
+            <tr>
+                <th scope="row">{{loop.index}}</th>
+                <td>{{p.tittle}}</td>
+                <td>{{p.desc|truncate(25,'')}}</td>
+                <td>{{p.date_created.strftime('%A, %d %B %Y %I:%M %p')}}</td>
+                <td>
+                    <a href="/details/{{p.sn}}"><button type="button" class="btn btn-outline-info btn-sm">View
+                            Details</button></a>
+                    <a href="/delete/{{p.sn}}"><button type="button"
+                            class="btn btn-outline-danger btn-sm">Delete</button></a>
+                    <a href="/update/{{p.sn}}"><button type="button"
+                            class="btn btn-outline-success btn-sm">Update</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% elif posts|length == 0 and flag.search == True %}
+    <h3 style="text-align: center;" class="p-2 bg-info border border-success rounded"> Nothing found in your search
+        result. Thank You !!!</h3>
+    {% endif %}
 
     {% if all_list|length > 0 %}
+    <h4>Your Todos</h4>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -45,8 +90,8 @@ TODO HOME
                 <td>{{item.desc|truncate(25,'')}}</td>
                 <td>{{item.date_created.strftime('%A, %d %B %Y %I:%M %p')}}</td>
                 <td>
-                    <a href="/details/{{item.sn}}"><button type="button"
-                         class="btn btn-outline-info btn-sm">View Details</button></a>
+                    <a href="/details/{{item.sn}}"><button type="button" class="btn btn-outline-info btn-sm">View
+                            Details</button></a>
                     <a href="/delete/{{item.sn}}"><button type="button"
                             class="btn btn-outline-danger btn-sm">Delete</button></a>
                     <a href="/update/{{item.sn}}"><button type="button"
@@ -56,7 +101,7 @@ TODO HOME
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
+    {% elif all_list|length == 0 and flag.normal == True %}
     <h3 style="text-align: center;" class="p-2 bg-info border border-success rounded"> Nothing to show because your
         todo list in empty. Thank You !!!</h3>
     {% endif %}

@@ -5,7 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///Todo_DB.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+db = SQLAlchemy(app) 
 
 app.app_context().push()
 
@@ -16,7 +16,7 @@ class Todo_DB(db.Model):
     date_created = db.Column(db.DateTime, default = datetime.now())
 
     def __repr__(self) -> str:
-        return f"{self.sn} -> {self.tittle} -> {self.date_created}"
+        return f"{self.sn}  {self.tittle}  {self.desc} {self.date_created}"
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -28,8 +28,8 @@ def home():
         db.session.add(add_db)
         db.session.commit()
     all_list = Todo_DB.query.all()
-    return render_template("index.html", all_list=all_list)
-
+    flag = {"normal" : True, "search":False}
+    return render_template("index.html", all_list=all_list, flag=flag)
 
 @app.route('/delete/<int:sn>')
 def delete(sn):
@@ -58,6 +58,17 @@ def update(sn):
 def details(sn):
     context = Todo_DB.query.filter_by(sn=sn).first()
     return  render_template("details.html", context=context)
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        search_q = request.form['search']
+    search = "%{}%".format(search_q)
+    posts = Todo_DB.query.filter(Todo_DB.tittle.like(search)).all()
+    # two = Todo_DB.query.filter(Todo_DB.tittle.ilike(search)).all()
+    flag = {"normal" : False, "search":True}
+    return  render_template("index.html", posts=posts, flag=flag)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
