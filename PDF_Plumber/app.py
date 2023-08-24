@@ -34,15 +34,8 @@ def home():
                 table = pdf.pages[0].extract_tables()
                 text = pdf.pages[0].extract_text(layout=False)
 
-            table.sort(key=len)
-            table = table[-2:]
-
-            if table[0][0][0] == "LINE":
-                line_table = table[0]
-                other_table = table[1]
-            else:
-                line_table = table[1]
-                other_table = table[0]
+            line_table = table[2]
+            other_table = table[0]
 
             data_frame = pd.DataFrame(line_table)
             data_frame.columns = data_frame.iloc[0]
