@@ -90,10 +90,13 @@ def home():
                 data_frame = data_frame.drop(0)
                 del data_frame[None]
                 data_frame.dropna(inplace=True)
-                data_frame = data_frame.drop(data_frame.index[-1])
+                if data_frame['Description'].values[-1] != "Shipping Charges":
+                    data_frame = data_frame.drop(data_frame.index[-1])
                 data_frame = data_frame.rename_axis('LINE')
-                required_columns = ['Description', 'Qty', 'Rate', 'Amount']
-                required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), required_columns))
+                column_names = column_names.split(",")
+                required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), column_names))
+                # required_columns = ['Description', 'Qty', 'Rate', 'Amount']
+                # required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), required_columns))
                 selected_df = data_frame[required_columns].copy()
                 json_output_line = selected_df.to_json(orient = 'columns')
                 other_table = table[0]
