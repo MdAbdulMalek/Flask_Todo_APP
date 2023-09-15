@@ -24,63 +24,62 @@
         </div>
     </nav>
 
-    <div class="rectangular-div my-15">
+    <div class="container my-3 text-center">
 
-        <h5>UPLOAD ANY PDF HERE</h5>
-        <div>
-            <form action="/" method="post" enctype="multipart/form-data">
-                <input class="form-control form-control-sm my-2" type="file" id="formFileMultiple" name="pdf_file"
-                    style="background-color: #b7f4c9; border-color: #030303;" required>
-                <h6>Enter the required column names here !!!</h6>
-                <input type="text" class="form-control form-control-sm my-2" style="border-color: #030303;"
-                    placeholder="Input Example: SKU, ITEM TOTAL, QTY, Amount" name="columns" required>
-                    <h6>Select your Vendor here !!!</h6>
-                    <select id="vendor" name="vendor" class="form-select form-select-sm mx-auto" style="width: auto; text-align:center; color:rgb(15, 16, 16);" required>
-                        {% for ven in context.v_list %}
-                            <option value="{{ven}}"> <b>-- {{ven}} --</b> </option>
-                        {% endfor %}
-                    </select>
-                <button type="submit" class="btn btn-outline-primary btn-sm my-2">Upload And Extract Lines</button>
-            </form>
-        </div>
-        <div>
-            {% if context.json_output_line|length > 0 %}
-            <div class="card">
-                <div class="card-header">
-                    Json Output Line Item
-                </div>
-                <div class="card-body">
-                    <p class="card-text">{{context.json_output_line}}</p>
-                </div>
-
-                <div class="card-header">
-                    Json Output Other
-                </div>
-                <div class="card-body">
-                    <p class="card-text">{{context.final_dic_other}}</p>
-                </div>
+            <h5>UPLOAD ANY PDF HERE</h5>
+            <div>
+                <form action="/" method="post" enctype="multipart/form-data">
+                    <input class="form-control form-control-sm my-2" type="file" id="formFileMultiple" name="pdf_file"
+                        style="background-color: #b7f4c9; border-color: #030303;" required>
+                    <h6>Enter the required column names (line items) here !!!</h6>
+                    <input type="text" class="form-control form-control-sm my-2" style="border-color: #030303;"
+                        placeholder="Input Example: SKU, ITEM TOTAL, QTY, Amount" name="columns" required>
+                        <h6 class="mx-auto">Select your Vendor here !!!</h6>
+                        <select id="vendor" name="vendor" class="form-select form-select-sm mx-auto" style="width: auto; text-align:center; color:rgb(15, 16, 16); background-color:rgb(110, 243, 118)" required>
+                            {% for ven in context.v_list %}
+                                <option value="{{ven}}"> <b> {{ven}} </b> </option>
+                            {% endfor %}
+                        </select>
+                    <button type="submit" class="btn btn-outline-primary btn-sm my-2">Upload And Extract Lines</button>
+                </form>
             </div>
-            {% endif %}
-        </div>
+            <div>
+                {% if context.json_output_line|length > 0 %}
+                <div class="card">
+                    <div class="card-header">
+                        Json Output Line Item
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{context.json_output_line}}</p>
+                    </div>
+
+                    <div class="card-header">
+                        Json Output Other
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{context.final_dic_other}}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
 
-    <style>
-        .rectangular-div {
-            width: 1000px;
-            height: 620px;
-            background-color: #e3ecf2;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-    </style>
-
+<footer class="footer">
+    &copy;bistasolutions.com
+</footer>
+<style>
+    .footer {
+        text-align:center; 
+        position:absolute; 
+        bottom:0; width: 100%; 
+        padding: 6px 0; 
+        background-color: #e3f2fd;
+    }
+</style>
 </body>
 
 </html>

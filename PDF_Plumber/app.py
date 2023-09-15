@@ -1,10 +1,9 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request
 import pdfplumber
 import pandas as pd
 import numpy as np
 import re
 import os
-from itertools import chain
 
 app = Flask(__name__)
 
@@ -28,12 +27,12 @@ def home():
                 os.remove(path)
             pdf_file.save(path)
         file_path = os.listdir(UPLOAD_FOLDER)
-        v_list = ['Costco Canada', 'Acme_Dry_Ice']
+        v_list = ['Costco Canada', 'Acme Dry Ice', 'Edgewater Properties LLC']
         try:
-            with pdfplumber.open(UPLOAD_FOLDER+"/"+file_path[0]) as pdf:
-                table = pdf.pages[0].extract_tables()
-                text = pdf.pages[0].extract_text(layout=False)
             if selected_ven == "Costco Canada":
+                with pdfplumber.open(UPLOAD_FOLDER+"/"+file_path[0]) as pdf:
+                    table = pdf.pages[0].extract_tables()
+                    text = pdf.pages[0].extract_text(layout=False)
                 line_table = table[2]
                 other_table = table[0]
 
@@ -44,6 +43,7 @@ def home():
                 data_frame.columns = data_frame.columns.str.replace('\n', ' ')
                 # required_columns = ['LINE', 'SKU', 'DESCRIPTION LINE ITEM COMMENTS', 'UNIT COST/ RETAIL PRICE', 'QTY', 'ITEM TOTAL']
                 column_names = column_names.split(",")
+                if '' in column_names: column_names.remove('')
                 required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), column_names))
                 column_name = ['LINE']
                 required_columns.extend(column_name)
@@ -53,10 +53,11 @@ def home():
                 selected_df = selected_df.iloc[:-1]
                 selected_df = selected_df.replace('\n',' ', regex=True)
                 final_df = selected_df.set_index("LINE")
-                json_output_line = final_df.to_json(orient = 'columns')
+                # json_output_line = final_df.to_json(orient = 'columns')
+                json_output_line = final_df.to_dict()
 
                 vendor_name = "Costco Canada"
-                result = list(chain(other_table[0], other_table[1], other_table[3]))
+                result = other_table[0] + other_table[1] + other_table[3]
                 order_number_pattern = r'Order #:\s+(\d+)'
                 match = re.search(order_number_pattern, text)
                 order_num = match.group(1)
@@ -83,7 +84,10 @@ def home():
                     os.remove(path)
                 context = {'json_output_line':json_output_line, 'final_dic_other':final_dic_other, 'v_list':v_list}
                 return render_template("index.html", context=context)
-            elif selected_ven == "Acme_Dry_Ice":
+            
+            elif selected_ven == "Acme Dry Ice":
+                with pdfplumber.open(UPLOAD_FOLDER+"/"+file_path[0]) as pdf:
+                    table = pdf.pages[0].extract_tables()
                 line_table = table[4]
                 data_frame = pd.DataFrame(line_table)
                 data_frame.columns = data_frame.iloc[0]
@@ -94,11 +98,11 @@ def home():
                     data_frame = data_frame.drop(data_frame.index[-1])
                 data_frame = data_frame.rename_axis('LINE')
                 column_names = column_names.split(",")
+                if '' in column_names: column_names.remove('')
                 required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), column_names))
-                # required_columns = ['Description', 'Qty', 'Rate', 'Amount']
-                # required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), required_columns))
                 selected_df = data_frame[required_columns].copy()
-                json_output_line = selected_df.to_json(orient = 'columns')
+                # json_output_line = selected_df.to_json(orient = 'columns')
+                json_output_line = selected_df.to_dict()
                 other_table = table[0]
                 vendor_name = "Acme Dry Ice Co./Acme Ice Co."
                 final_dic_other = {}
@@ -111,6 +115,33 @@ def home():
                     os.remove(path)
                 context = {'json_output_line':json_output_line, 'final_dic_other':final_dic_other, 'v_list':v_list}
                 return render_template("index.html", context=context)
+            
+            elif selected_ven == "Edgewater Properties LLC":
+                with pdfplumber.open(UPLOAD_FOLDER+"/"+file_path[0]) as pdf:
+                    table_other = pdf.pages[0].extract_tables()
+                    table_line = pdf.pages[0].extract_tables(table_settings={"horizontal_strategy": "text"})
+                    data_frame = pd.DataFrame(table_line[2])
+                data_frame.columns = data_frame.iloc[0]
+                data_frame = data_frame.drop(0)
+                data_frame['Description'].replace('', np.nan, inplace=True)
+                data_frame.dropna(inplace=True)
+                data_frame = data_frame.reset_index(drop=True)
+                data_frame = data_frame.rename_axis('LINE')
+                data_frame.index += 1
+                column_names = column_names.split(",")
+                if '' in column_names: column_names.remove('')
+                required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), column_names))
+                selected_df = data_frame[required_columns].copy()
+                # json_output_line = selected_df.to_json(orient = 'columns')
+                json_output_line = selected_df.to_dict()
+                vendor_name = "Edgewater Properties LLC"
+                final_dic_other = {}
+                final_dic_other['Vendor Name'] = vendor_name
+                final_dic_other['Date'] = table_other[0][1][0]
+                final_dic_other['Invoice No'] = table_other[0][1][1]
+                final_dic_other['Bill To'] = table_other[1][1][0].replace('\n',' ')
+                context = {'json_output_line':json_output_line, 'final_dic_other':final_dic_other, 'v_list':v_list}
+                return render_template("index.html", context=context)
         except:
             path = os.path.join(app.config['UPLOAD_FOLDER'], file_path[0])
             if os.path.exists(path):
@@ -118,7 +149,7 @@ def home():
             context = {'json_output_line':[], 'final_dic_other':[], 'v_list':v_list}
             return render_template("index.html", context=context)
     else:
-        v_list = ['Costco Canada', 'Acme_Dry_Ice']
+        v_list = ['Costco Canada', 'Acme Dry Ice', 'Edgewater Properties LLC']
         context = {'json_output_line':[], 'final_dic_other':[], 'v_list':v_list}
         return render_template("index.html", context=context)
 
