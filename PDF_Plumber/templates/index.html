@@ -26,20 +26,22 @@
 
     <div class="container my-3 text-center">
 
-            <h5>UPLOAD ANY PDF HERE</h5>
+            
             <div>
+                
+                <h5 class="mx-auto">Select any vendor here !!!</h5>
                 <form action="/" method="post" enctype="multipart/form-data">
+                    <select id="vendor" name="vendor" class="form-select form-select-sm mx-auto" style="width: auto; text-align:center; background-color:rgb(110, 243, 118)" required>
+                        {% for ven in context.v_list %}
+                            <option value="{{ven}}"> <b> {{ven}} </b> </option>
+                        {% endfor %}
+                    </select>
+                    <h6 class="my-2">Upload the PDF of that vendor !!!</h6>
                     <input class="form-control form-control-sm my-2" type="file" id="formFileMultiple" name="pdf_file"
-                        style="background-color: #b7f4c9; border-color: #030303;" required>
+                    style="background-color: #b7f4c9; border-color: #030303;" required>
                     <h6>Enter the required column names (line items) here !!!</h6>
-                    <input type="text" class="form-control form-control-sm my-2" style="border-color: #030303;"
-                        placeholder="Input Example: SKU, ITEM TOTAL, QTY, Amount" name="columns" required>
-                        <h6 class="mx-auto">Select your Vendor here !!!</h6>
-                        <select id="vendor" name="vendor" class="form-select form-select-sm mx-auto" style="width: auto; text-align:center; color:rgb(15, 16, 16); background-color:rgb(110, 243, 118)" required>
-                            {% for ven in context.v_list %}
-                                <option value="{{ven}}"> <b> {{ven}} </b> </option>
-                            {% endfor %}
-                        </select>
+                    <input type="text" class="form-control form-control-sm my-2" style="color:black;  border-color: #030303;"
+                     placeholder="Input Example: SKU, ITEM TOTAL, QTY, Amount, Description" name="columns" id="columns" required >
                     <button type="submit" class="btn btn-outline-primary btn-sm my-2">Upload And Extract Lines</button>
                 </form>
             </div>
@@ -60,9 +62,39 @@
                         <p class="card-text">{{context.final_dic_other}}</p>
                     </div>
                 </div>
+                {% elif context.col_not|length > 0 %}
+                    <div class="card my-2">
+                        <div class="card-header" style="background-color: #f7d1d7;">
+                            The column name "{{context.col_not}}" was not found in the input PDF.
+                        </div>
+                    </div>
                 {% endif %}
             </div>
     </div>
+    <script>
+        // Get the select element
+        const selectElement = document.getElementById('vendor');
+        // Get the input text field
+        var inputField = document.getElementById('columns');
+        var costco = "LINE, SKU, DESCRIPTION LINE ITEM COMMENTS, UNIT COST/ RETAIL PRICE, QTY, ITEM TOTAL";
+        var acme = "Description, Qty, Rate, Amount";
+        var edge = "Description, Amount";
+        var other = "Input Example: SKU, ITEM TOTAL, QTY, Amount, Description";
+        // Add an event listener to detect changes in the select element
+        selectElement.addEventListener('change', function() {
+            const selectedOption = selectElement.value;
+            
+            if (selectedOption == "Costco Canada") {
+                inputField.value = costco;
+              } else if (selectedOption == "Acme Dry Ice") {
+                inputField.value = acme;
+              } else if (selectedOption == "Edgewater Properties LLC"){
+                inputField.value = edge;
+              } else {
+                inputField.value = other;
+              }
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"

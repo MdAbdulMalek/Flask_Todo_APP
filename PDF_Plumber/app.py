@@ -14,7 +14,6 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == "POST":
@@ -27,7 +26,10 @@ def home():
                 os.remove(path)
             pdf_file.save(path)
         file_path = os.listdir(UPLOAD_FOLDER)
-        v_list = ['Costco Canada', 'Acme Dry Ice', 'Edgewater Properties LLC']
+        # List the vendors of interest here. Every individual here needs unique logic.
+        # Currenlty, there are only 3 vendors we have configured.
+        # Test ONLY the inovoices of the vendors mentioned here
+        v_list = ['Select One Vendor', 'Costco Canada', 'Acme Dry Ice', 'Edgewater Properties LLC']
         try:
             if selected_ven == "Costco Canada":
                 with pdfplumber.open(UPLOAD_FOLDER+"/"+file_path[0]) as pdf:
@@ -41,19 +43,22 @@ def home():
                 data_frame = data_frame.drop(0)
 
                 data_frame.columns = data_frame.columns.str.replace('\n', ' ')
-                # required_columns = ['LINE', 'SKU', 'DESCRIPTION LINE ITEM COMMENTS', 'UNIT COST/ RETAIL PRICE', 'QTY', 'ITEM TOTAL']
                 column_names = column_names.split(",")
                 if '' in column_names: column_names.remove('')
                 required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), column_names))
+
                 column_name = ['LINE']
                 required_columns.extend(column_name)
                 required_columns = np.unique(required_columns)
+                for col in required_columns:
+                    if col not in list(data_frame.columns):
+                        context = {'json_output_line':[], 'final_dic_other':[], 'v_list':v_list, 'col_not':col}
+                        return render_template("index.html", context=context)
                 selected_df = data_frame[required_columns].copy()
 
                 selected_df = selected_df.iloc[:-1]
                 selected_df = selected_df.replace('\n',' ', regex=True)
                 final_df = selected_df.set_index("LINE")
-                # json_output_line = final_df.to_json(orient = 'columns')
                 json_output_line = final_df.to_dict()
 
                 vendor_name = "Costco Canada"
@@ -97,11 +102,17 @@ def home():
                 if data_frame['Description'].values[-1] != "Shipping Charges":
                     data_frame = data_frame.drop(data_frame.index[-1])
                 data_frame = data_frame.rename_axis('LINE')
+                # data_frame.columns = [column.upper() for column in data_frame.columns]
+                # print("data_frame", data_frame)
                 column_names = column_names.split(",")
                 if '' in column_names: column_names.remove('')
+                # print("column_names", column_names)
                 required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), column_names))
+                for col in required_columns:
+                    if col not in list(data_frame.columns):
+                        context = {'json_output_line':[], 'final_dic_other':[], 'v_list':v_list, 'col_not':col}
+                        return render_template("index.html", context=context)
                 selected_df = data_frame[required_columns].copy()
-                # json_output_line = selected_df.to_json(orient = 'columns')
                 json_output_line = selected_df.to_dict()
                 other_table = table[0]
                 vendor_name = "Acme Dry Ice Co./Acme Ice Co."
@@ -131,8 +142,11 @@ def home():
                 column_names = column_names.split(",")
                 if '' in column_names: column_names.remove('')
                 required_columns = list(map(lambda text: re.sub(r'\s+', ' ', text.strip()), column_names))
+                for col in required_columns:
+                    if col not in list(data_frame.columns):
+                        context = {'json_output_line':[], 'final_dic_other':[], 'v_list':v_list, 'col_not':col}
+                        return render_template("index.html", context=context)
                 selected_df = data_frame[required_columns].copy()
-                # json_output_line = selected_df.to_json(orient = 'columns')
                 json_output_line = selected_df.to_dict()
                 vendor_name = "Edgewater Properties LLC"
                 final_dic_other = {}
@@ -149,7 +163,7 @@ def home():
             context = {'json_output_line':[], 'final_dic_other':[], 'v_list':v_list}
             return render_template("index.html", context=context)
     else:
-        v_list = ['Costco Canada', 'Acme Dry Ice', 'Edgewater Properties LLC']
+        v_list = ['Select One Vendor', 'Costco Canada', 'Acme Dry Ice', 'Edgewater Properties LLC']
         context = {'json_output_line':[], 'final_dic_other':[], 'v_list':v_list}
         return render_template("index.html", context=context)
 
